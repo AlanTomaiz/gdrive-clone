@@ -1,7 +1,7 @@
 export default {
   clearMocks: true,
   restoreMocks: true,
-  collectCoverage: true,
+  // collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
   coverageReporters: ["text", "lcov"],
@@ -16,5 +16,5 @@ export default {
   },
   watchPathIgnorePatterns: ["node_modules"],
   transformIgnorePatterns: ["node_modules"],
-  collectCoverageFrom: ["src/**/*.js", "!src/**/index.js"]
+  collectCoverageFrom: ["src/**/*.js", "!src/**/index.js", "!src/**/main.js"]
 };
