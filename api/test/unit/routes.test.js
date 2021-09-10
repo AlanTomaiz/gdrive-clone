@@ -92,12 +92,14 @@ describe('#Routes test suite', () => {
     test('Its should return file status in correct format', async () => {
       const routes = new Routes();
 
-      const returnMock = {
-        filename: 'test.test',
-        size: '42.4 MB',
-        lastModified: '2021-09-10T18:42:36.787Z',
-        owner: 'alantomaiz',
-      };
+      const returnMock = [
+        {
+          filename: 'test.test',
+          size: '42.4 MB',
+          lastModified: '2021-09-10T18:42:36.787Z',
+          owner: 'alantomaiz',
+        }
+      ];
 
       const params = { ...defaultParams };
       params.request.method = 'GET';
