@@ -1,9 +1,12 @@
 import { logger } from './services/logger.js';
+import fileHelper from './fileHelper.js';
 
 export default class Routes {
   io;
 
-  constructor() {}
+  constructor() {
+    this.fileHelper = fileHelper;
+  }
 
   setSocketInstance(io) {
     this.io = io;
@@ -15,9 +18,10 @@ export default class Routes {
   }
 
   async get(request, response) {
-    logger.info('Get router');
+    const files = await this.fileHelper.getFilesStatus();
 
-    response.end();
+    response.writeHead(200);
+    response.end(JSON.stringify(files));
   }
 
   async post(request, response) {

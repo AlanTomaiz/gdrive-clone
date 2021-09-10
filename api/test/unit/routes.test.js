@@ -87,4 +87,27 @@ describe('#Routes test suite', () => {
       expect(routes.post).toHaveBeenCalled();
     })
   });
+
+  describe('- Method GET', () => {
+    test('Its should return file status in correct format', async () => {
+      const routes = new Routes();
+
+      const returnMock = {
+        filename: 'test.test',
+        size: '42.4 MB',
+        lastModified: '2021-09-10T18:42:36.787Z',
+        owner: 'alantomaiz',
+      };
+
+      const params = { ...defaultParams };
+      params.request.method = 'GET';
+
+      jest.spyOn(routes.fileHelper, routes.fileHelper.getFilesStatus.name)
+        .mockResolvedValue(returnMock);
+
+      await routes.handler(...params.values());
+      expect(params.response.writeHead).toHaveBeenCalledWith(200);
+      expect(params.response.end).toHaveBeenCalledWith(JSON.stringify(returnMock));
+    });
+  });
 });
