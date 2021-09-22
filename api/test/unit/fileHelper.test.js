@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 
 import fileHelper from '../../src/fileHelper.js';
 
-describe('#FileHelper', () => {
+describe('#FileHelper test suite', () => {
   const statMock = {
     dev: 2050,
     mode: 33204,
