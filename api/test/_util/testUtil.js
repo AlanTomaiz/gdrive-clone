@@ -1,6 +1,17 @@
 import { Readable, Transform, Writable } from 'stream';
+import { jest } from '@jest/globals';
 
 export default class TestUtil {
+  static mockDateNow(arrayTimes) {
+    const mock = jest.spyOn(global.Date, 'now');
+
+    arrayTimes.forEach(time => mock.mockReturnValueOnce(time));
+  }
+
+  static getTimeFromDate(dateString) {
+    return new Date(dateString).getTime();
+  }
+
   static generateReadable(data) {
     return new Readable({
       objectMode: true,

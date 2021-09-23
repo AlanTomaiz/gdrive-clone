@@ -96,4 +96,30 @@ describe('#UploadHandler test suite', () => {
       expect(onWrite.mock.calls.join()).toEqual(chunks.join());
     });
   });
+
+  describe('- canExecute', () => {
+    const handler = new UploadHandler({ io: {}, client_id: 'uuid' });
+
+    test('Should return true when time is later than specified delay', () => {
+      // FORMAT DATE: yyyy-mm-dd hh:ii:ss.u
+      const tickTimeNow = TestUtil.getTimeFromDate('2021-09-23 17:00:00.500');
+      const lastExecution = TestUtil.getTimeFromDate('2021-09-23 17:00');
+
+      TestUtil.mockDateNow([tickTimeNow]);
+
+      const result = handler.canExecute(lastExecution);
+      expect(result).toBeTruthy();
+    });
+
+    test('Should return false when time isnt later than specified delay', () => {
+      // FORMAT DATE: yyyy-mm-dd hh:ii:ss.u
+      const tickTimeNow = TestUtil.getTimeFromDate('2021-09-23 17:00:00.100');
+      const lastExecution = TestUtil.getTimeFromDate('2021-09-23 17:00');
+
+      TestUtil.mockDateNow([tickTimeNow]);
+
+      const result = handler.canExecute(lastExecution);
+      expect(result).toBeFalsy();
+    });
+  });
 });

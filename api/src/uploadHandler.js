@@ -22,7 +22,7 @@ export default class UploadHandler {
   }
 
   handleFileBuffer(filename) {
-    let lastMessageSent = new Date();
+    let lastMessageSent = Date.now();
 
     async function* handleData(source) {
       let processedAlready = 0;
@@ -33,7 +33,7 @@ export default class UploadHandler {
         processedAlready += chunk.length;
 
         if (this.canExecute(lastMessageSent)) {
-          lastMessageSent = new Date();
+          lastMessageSent = Date.now();
 
           this.io.to(this.client_id).emit(this.ON_UPLOAD_EVENT, { processedAlready, filename });
           logger.info(`File [${filename}] got ${processedAlready} bytes to ${this.client_id}`);
