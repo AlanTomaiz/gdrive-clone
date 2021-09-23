@@ -10,9 +10,39 @@ const directory = pathResolve('uploads');
 const pipeline = promisify(pipeStream);
 
 export default class UploadHandler {
-  constructor({ io, client_id }) {}
+  ON_UPLOAD_EVENT = 'file-upload';
 
-  handleFileBuffer() {}
+  constructor({ io, client_id }) {
+    this.io = io;
+    this.client_id = client_id;
+  }
+
+  canExecute(lastExecution) {
+    return (Date.now() - lastExecution) >= 200;
+  }
+
+  handleFileBuffer(filename) {
+    let lastMessageSent = new Date();
+
+    async function* handleData(source) {
+      let processedAlready = 0;
+
+      for await (const chunk of source) {
+        yield chunk;
+
+        processedAlready += chunk.length;
+
+        if (this.canExecute(lastMessageSent)) {
+          lastMessageSent = new Date();
+
+          this.io.to(this.client_id).emit(this.ON_UPLOAD_EVENT, { processedAlready, filename });
+          logger.info(`File [${filename}] got ${processedAlready} bytes to ${this.client_id}`);
+        }
+      }
+    }
+
+    return handleData.bind(this);
+  }
 
   async onFile(fieldname, file, filename) {
     await pipeline(

@@ -3,6 +3,7 @@ import { Readable, Transform, Writable } from 'stream';
 export default class TestUtil {
   static generateReadable(data) {
     return new Readable({
+      objectMode: true,
       read () {
         for (const chunk of data) {
           this.push(chunk);
@@ -15,6 +16,7 @@ export default class TestUtil {
 
   static generateWritable(onData) {
     return new Writable({
+      objectMode: true,
       write (Chunk, encondig, cb) {
         onData(Chunk);
         cb(null, Chunk);
@@ -24,6 +26,7 @@ export default class TestUtil {
 
   static generateTransform(onData) {
     return new Transform({
+      objectMode: true,
       transform (Chunk, encondig, cb) {
         onData(Chunk);
         cb(null, Chunk);

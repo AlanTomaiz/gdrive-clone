@@ -1,23 +1,31 @@
-import { describe, test, jest, expect } from '@jest/globals';
+import { describe, test, jest, expect, beforeEach } from '@jest/globals';
+import { pipeline as pipeStream } from 'stream';
+import { promisify } from 'util';
 import fs from 'fs';
 
 import UploadHandler from '../../src/uploadHandler';
 import { pathResolve } from '../../src/services/path.js';
 import TestUtil from '../_util/testUtil';
+import { logger } from '../../src/services/logger';
 
 const directory = pathResolve('uploads');
+const pipeline = promisify(pipeStream);
 
 describe('#UploadHandler test suite', () => {
   const chunks = ['Chunk', 'of', 'looong', 'data'];
 
   const ioObj = {
     to: (id) => ioObj,
-    emit: (event, message) => {}
+    emit: (event, message) => { }
   };
 
   const fileHeader = {
     'content-type': 'multipart/form-data; boundary='
   }
+
+  beforeEach(() => {
+    jest.spyOn(logger, 'info').mockImplementation();
+  });
 
   describe('- eventRegister', () => {
     test('Should call onFile function and emit finish alert', () => {
@@ -62,9 +70,30 @@ describe('#UploadHandler test suite', () => {
     });
   });
 
-  // describe('- handleFileBuffer', () => {
-  //   test('Should call emit function and it is a transform stream', async () => {
+  describe('- handleFileBuffer', () => {
+    test('Should call emit function and it is a transform stream', async () => {
+      jest.spyOn(ioObj, ioObj.to.name);
+      jest.spyOn(ioObj, ioObj.emit.name);
 
-  //   });
-  // });
+      const handler = new UploadHandler({ io: ioObj, client_id: 'uuid' });
+
+      jest.spyOn(handler, handler.canExecute.name).mockReturnValue(true);
+
+      const onWrite = jest.fn();
+      const target = TestUtil.generateWritable(onWrite);
+      const source = TestUtil.generateReadable(chunks);
+
+      await pipeline(
+        source,
+        handler.handleFileBuffer('mockfile.txt'),
+        target
+      );
+
+      expect(ioObj.to).toHaveBeenCalledTimes(chunks.length);
+      expect(ioObj.emit).toHaveBeenCalledTimes(chunks.length);
+
+      expect(onWrite).toHaveBeenCalledTimes(chunks.length);
+      expect(onWrite.mock.calls.join()).toEqual(chunks.join());
+    });
+  });
 });
