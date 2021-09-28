@@ -1,5 +1,10 @@
+import { parse } from 'url';
+import { promisify } from 'util'
+import { pipeline as pipeStream } from 'stream';
+
 import { logger } from './services/logger.js';
 import fileHelper from './fileHelper.js';
+import UploadHandler from './uploadHandler.js';
 
 export default class Routes {
   io;
@@ -25,9 +30,20 @@ export default class Routes {
   }
 
   async post(request, response) {
-    logger.info('Post router');
+    const pipeline = promisify(pipeStream);
 
-    response.end();
+    const { headers } = request;
+    const { user } = parse(request.url, true).query;
+    const uploadHandler = new UploadHandler({ io: this.io, client_id: user });
+
+    const busboyInstance = uploadHandler.eventRegister(headers, () => {
+      response.writeHead(200);
+
+      const data = JSON.stringify({ status: 'success', message: 'Files uploaded with success!' });
+      response.end(data);
+    });
+
+    await pipeline(request, busboyInstance);
   }
 
   async notFound(request, response) {

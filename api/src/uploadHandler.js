@@ -6,9 +6,6 @@ import { pipeline as pipeStream } from 'stream';
 import { pathResolve } from './services/path.js';
 import { logger } from './services/logger.js';
 
-const directory = pathResolve('uploads');
-const pipeline = promisify(pipeStream);
-
 export default class UploadHandler {
   ON_UPLOAD_EVENT = 'file-upload';
 
@@ -18,7 +15,8 @@ export default class UploadHandler {
   }
 
   canExecute(lastExecution) {
-    return (Date.now() - lastExecution) >= 200;
+    const time = Date.now() - lastExecution;
+    return time >= 1000;
   }
 
   handleFileBuffer(filename) {
@@ -31,7 +29,6 @@ export default class UploadHandler {
         yield chunk;
 
         processedAlready += chunk.length;
-
         if (this.canExecute(lastMessageSent)) {
           lastMessageSent = Date.now();
 
@@ -45,6 +42,9 @@ export default class UploadHandler {
   }
 
   async onFile(fieldname, file, filename) {
+    const directory = pathResolve('uploads');
+    const pipeline = promisify(pipeStream);
+
     await pipeline(
       file,
       this.handleFileBuffer(filename),

@@ -8,9 +8,6 @@ import { pathResolve } from '../../src/services/path.js';
 import TestUtil from '../_util/testUtil';
 import { logger } from '../../src/services/logger';
 
-const directory = pathResolve('uploads');
-const pipeline = promisify(pipeStream);
-
 describe('#UploadHandler test suite', () => {
   const chunks = ['Chunk', 'of', 'looong', 'data'];
 
@@ -24,6 +21,7 @@ describe('#UploadHandler test suite', () => {
   }
 
   beforeEach(() => {
+    jest.restoreAllMocks();
     jest.spyOn(logger, 'info').mockImplementation();
   });
 
@@ -45,6 +43,7 @@ describe('#UploadHandler test suite', () => {
 
   describe('- onFile', () => {
     test('Given a stream file it should save it on disk', async () => {
+      const directory = pathResolve('uploads');
       const handler = new UploadHandler({ io: ioObj, client_id: 'uuid' });
 
       const onData = jest.fn();
@@ -71,17 +70,18 @@ describe('#UploadHandler test suite', () => {
   });
 
   describe('- handleFileBuffer', () => {
+    const pipeline = promisify(pipeStream);
+
     test('Should call emit function and it is a transform stream', async () => {
       jest.spyOn(ioObj, ioObj.to.name);
       jest.spyOn(ioObj, ioObj.emit.name);
 
       const handler = new UploadHandler({ io: ioObj, client_id: 'uuid' });
-
       jest.spyOn(handler, handler.canExecute.name).mockReturnValue(true);
 
       const onWrite = jest.fn();
-      const target = TestUtil.generateWritable(onWrite);
       const source = TestUtil.generateReadable(chunks);
+      const target = TestUtil.generateWritable(onWrite);
 
       await pipeline(
         source,
@@ -95,6 +95,42 @@ describe('#UploadHandler test suite', () => {
       expect(onWrite).toHaveBeenCalledTimes(chunks.length);
       expect(onWrite.mock.calls.join()).toEqual(chunks.join());
     });
+
+    test('Should emit message with a interval of 1 second', async () => {
+      jest.spyOn(ioObj, ioObj.emit.name);
+
+      const day = '2021-09-27 15:22';
+      const canExecuteStart = TestUtil.getTimeFromDate(`${day}:30`);
+      const FirstVerification = TestUtil.getTimeFromDate(`${day}:31`);;
+      const SetDelay = FirstVerification;
+
+      const SecondVerification = TestUtil.getTimeFromDate(`${day}:31.200`);
+      const ThirdVerification = TestUtil.getTimeFromDate(`${day}:31.800`);
+      const LastVerification = TestUtil.getTimeFromDate(`${day}:32`);
+
+      TestUtil.mockDateNow([
+        canExecuteStart,
+        FirstVerification,
+        SetDelay,
+        SecondVerification,
+        ThirdVerification,
+        LastVerification,
+      ]);
+
+      const filename = 'mockfile.txt';
+      const source = TestUtil.generateReadable(chunks);
+      const handler = new UploadHandler({ io: ioObj, client_id: 'uuid' });
+
+      await pipeline(
+        source,
+        handler.handleFileBuffer(filename),
+      );
+
+      const [firstMessage, secondMessage] = ioObj.emit.mock.calls;
+
+      expect(firstMessage).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: chunks[0].length, filename }]);
+      expect(secondMessage).toEqual([handler.ON_UPLOAD_EVENT, { processedAlready: chunks.join('').length, filename }]);
+    });
   });
 
   describe('- canExecute', () => {
@@ -102,7 +138,7 @@ describe('#UploadHandler test suite', () => {
 
     test('Should return true when time is later than specified delay', () => {
       // FORMAT DATE: yyyy-mm-dd hh:ii:ss.u
-      const tickTimeNow = TestUtil.getTimeFromDate('2021-09-23 17:00:00.500');
+      const tickTimeNow = TestUtil.getTimeFromDate('2021-09-23 17:00:01');
       const lastExecution = TestUtil.getTimeFromDate('2021-09-23 17:00');
 
       TestUtil.mockDateNow([tickTimeNow]);
