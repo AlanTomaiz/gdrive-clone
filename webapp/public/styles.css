@@ -180,6 +180,16 @@ input[type=search]::placeholder {
   border-radius: 2px;
 }
 
+#tbody td {
+  padding: 14px;
+  cursor: default;
+}
+
+#tbody td img {
+  vertical-align: middle;
+  margin-right: 15px;
+}
+
 /* folders */
 .folder {
   width: 185px;
@@ -193,28 +203,20 @@ input[type=search]::placeholder {
   margin-top: -3px;
 }
 
-.material-icons.red600 {
-  color: #fb3b00;
-}
-
-.material-icons.yellow600 {
-  color: #d0da08;
-}
-
-.modal { 
+.modal {
   word-wrap: normal;
-  
 }
+
 #progress-bar {
   width: 100%;
 }
+
 #output {
   font-size: 20px;
   word-wrap: break-word;
 }
 
 /* drag n drop */
- 
 .drop-area {
   border: 2px dashed #ccc;
   border-radius: 20px;
@@ -222,9 +224,11 @@ input[type=search]::placeholder {
   margin: 50px auto;
   padding: 20px;
 }
+
 .drop-area.highlight {
   border-color: purple;
-} 
-#fileElem {
+}
+
+#fileElem input {
   display: none;
 }
