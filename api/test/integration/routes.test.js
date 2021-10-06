@@ -24,7 +24,7 @@ describe('#Routes integration test', () => {
   });
 
   describe('- getFile Status', () => {
-    test.only('Should upload file on the folder', async () => {
+    test('Should upload file on the folder', async () => {
       const file_path = `${directory}/test/integration/mocks/480p.mp4`;
       const fileStream = fs.createReadStream(file_path);
       const response = TestUtil.generateWritable(() => {});
@@ -54,6 +54,8 @@ describe('#Routes integration test', () => {
       await routes.handler(...Object.values(params));
       const statusOfFilesAfter = await routes.fileHelper.getFilesStatus();
       expect(statusOfFilesAfter.length).toEqual(1);
+
+      expect(params.response.writeHead).toHaveBeenCalledWith(200);
     });
   });
 });

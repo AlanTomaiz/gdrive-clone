@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3000;
 const routes = new Routes();
 
 const localhostSSL = {
-  key: fs.readFileSync( pathResolve('certificates', 'key.pem') ),
-  cert: fs.readFileSync( pathResolve('certificates', 'cert.pem') ),
+  key: fs.readFileSync( pathResolve('..', 'certificates', 'key.pem') ),
+  cert: fs.readFileSync( pathResolve('..', 'certificates', 'cert.pem') ),
 };
 
 const server = https.createServer(

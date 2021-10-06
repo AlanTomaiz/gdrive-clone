@@ -6,9 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "mkdir -p uploads && node src/main.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --verbose",
+    "test": "mkdir -p uploads && NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --verbose",
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules npx jest --no-cache --runInBand --coverage",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch --runInBand --verbose"
+    "test:watch": "mkdir -p uploads && NODE_OPTIONS=--experimental-vm-modules npx jest --watch --runInBand --verbose"
   },
   "devDependencies": {
     "jest": "^27.1.0"
